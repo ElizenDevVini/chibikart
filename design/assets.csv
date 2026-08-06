@@ -1,0 +1,17 @@
+id,role,type,description,size/ratio,style line ref,source
+kart_red,player kart model seat 0,3d glb,chibi boy racer in red go-kart,~8000 polys,STYLE FORMULA,generate
+kart_blue,player kart model seat 1,3d glb,chibi girl racer in blue go-kart,~8000 polys,STYLE FORMULA,generate
+kart_green,player kart model seat 2,3d glb,chibi grandpa racer in green go-kart,~8000 polys,STYLE FORMULA,generate
+kart_yellow,player kart model seat 3,3d glb,chibi baby racer in yellow go-kart,~8000 polys,STYLE FORMULA,generate
+tex_road,road ribbon texture,seamless tile,cartoon asphalt road surface,1:1 1k,STYLE FORMULA,generate
+tex_grass,ground plane texture,seamless tile,cartoon lawn grass,1:1 1k,STYLE FORMULA,generate
+tex_dirt,shoulder strip texture,seamless tile,cartoon dirt path,1:1 1k,STYLE FORMULA,generate
+prop_donut,trackside landmark,3d glb,giant donut shop sign on a pole,~3000 polys,STYLE FORMULA,generate
+prop_tree,trackside scatter,3d glb,round cartoon tree,~3000 polys,STYLE FORMULA,generate
+prop_house,trackside scatter,3d glb,small pastel suburban house,~3000 polys,STYLE FORMULA,generate
+music_loop,race background music,audio loop,upbeat cartoon surf-rock instrumental loop,~60s,-,generate
+sfx_engine,engine hum while driving,audio,small go-kart engine loop,~3s loop,-,generate
+sfx_drift,drift skid,audio,cartoon tire skid squeal,~1s,-,generate
+sfx_boost,boost release,audio,cartoon whoosh zip,~1s,-,generate
+sfx_countdown,race start beeps,audio,three short beeps then a higher go beep,~4s,-,generate
+sfx_finish,finish fanfare,audio,short cheerful cartoon fanfare,~2s,-,generate

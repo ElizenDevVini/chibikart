@@ -1,0 +1,103 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>chibikart</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #9ed4f5; font-family: "Trebuchet MS", "Comic Sans MS", sans-serif; }
+  canvas#c { display: block; width: 100%; height: 100%; }
+  .overlay { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; flex-direction: column; gap: 14px; background: rgba(20, 24, 40, 0.45); z-index: 10; }
+  .card { background: #fffdf5; border: 3px solid #2a2a2e; border-radius: 18px; padding: 22px 26px; min-width: 300px; max-width: 90vw; box-shadow: 0 6px 0 #2a2a2e; }
+  .card h1 { margin: 0 0 4px; font-size: 26px; color: #2a2a2e; }
+  .card p { margin: 4px 0; color: #55565e; font-size: 14px; }
+  .inviteRow { display: flex; gap: 8px; margin: 10px 0; }
+  .inviteRow input { flex: 1; font-size: 13px; padding: 8px; border: 2px solid #2a2a2e; border-radius: 10px; background: #fff; color: #2a2a2e; }
+  button { font-family: inherit; font-size: 15px; font-weight: bold; padding: 10px 18px; border: 2px solid #2a2a2e; border-radius: 12px; background: #fff; color: #2a2a2e; cursor: pointer; box-shadow: 0 3px 0 #2a2a2e; }
+  button:active { transform: translateY(2px); box-shadow: 0 1px 0 #2a2a2e; }
+  #ready { background: #f2b21c; width: 100%; font-size: 18px; }
+  #ready.on { background: #3fa04c; color: #fff; }
+  .prow { display: flex; align-items: center; gap: 10px; padding: 7px 4px; font-size: 15px; color: #2a2a2e; }
+  .prow.me { font-weight: bold; }
+  .prow .rdy { margin-left: auto; font-size: 13px; color: #55565e; }
+  .dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #2a2a2e; display: inline-block; }
+  .dot.red, .kbtn.red { background: #e23d2e; } .dot.blue, .kbtn.blue { background: #2f6fe0; }
+  .dot.green, .kbtn.green { background: #3fa04c; } .dot.yellow, .kbtn.yellow { background: #f2b21c; }
+  #kartPick { display: flex; gap: 10px; margin: 8px 0; }
+  .kbtn { width: 38px; height: 38px; border-radius: 50%; padding: 0; }
+  .kbtn.sel { outline: 4px solid #2a2a2e; }
+  .kbtn.taken { opacity: 0.3; cursor: default; }
+  #countdown { position: fixed; top: 20%; left: 0; right: 0; text-align: center; font-size: 120px; font-weight: bold; color: #fffdf5; -webkit-text-stroke: 5px #2a2a2e; display: none; z-index: 5; }
+  #countdown.pop { animation: pop 0.4s ease-out; }
+  @keyframes pop { 0% { transform: scale(1.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+  #race { position: fixed; inset: 0; display: none; pointer-events: none; z-index: 4; }
+  #race .chip { position: fixed; background: #fffdf5; border: 3px solid #2a2a2e; border-radius: 14px; padding: 8px 14px; font-size: 20px; font-weight: bold; color: #2a2a2e; box-shadow: 0 3px 0 #2a2a2e; }
+  #lap { top: 14px; left: 14px; }
+  #pos { top: 14px; left: 50%; transform: translateX(-50%); font-size: 26px; }
+  #speed { bottom: 14px; right: 160px; }
+  #wrongway { position: fixed; top: 34%; left: 0; right: 0; text-align: center; font-size: 44px; font-weight: bold; color: #e23d2e; -webkit-text-stroke: 2px #fffdf5; display: none; animation: blink 0.6s infinite; }
+  @keyframes blink { 50% { opacity: 0.2; } }
+  #minimap { position: fixed; right: 12px; top: 12px; background: rgba(20, 24, 40, 0.35); border-radius: 12px; z-index: 4; }
+  #banner { position: fixed; top: 42%; left: 0; right: 0; text-align: center; font-size: 60px; font-weight: bold; color: #fffdf5; -webkit-text-stroke: 3px #2a2a2e; display: none; z-index: 6; }
+  #toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #2a2a2e; color: #fffdf5; padding: 10px 18px; border-radius: 12px; font-size: 14px; display: none; z-index: 8; }
+  #dev { position: fixed; bottom: 4px; left: 4px; color: #0f0; font: 12px monospace; background: rgba(0,0,0,0.6); padding: 3px 6px; display: none; z-index: 20; }
+  #controlsHint { position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%); color: #fffdf5; font-size: 12px; text-shadow: 0 1px 2px rgba(0,0,0,0.5); z-index: 3; }
+  #touchUi { display: none; }
+  #steerZone { position: fixed; left: 0; bottom: 0; width: 50%; height: 45%; z-index: 7; }
+  #steerZone::after { content: ""; position: absolute; left: 10%; right: 10%; bottom: 24px; height: 10px; border-radius: 5px; background: rgba(255,255,255,0.35); }
+  .tbtn { position: fixed; z-index: 7; width: 76px; height: 76px; border-radius: 50%; font-size: 13px; opacity: 0.85; }
+  #driftBtn { right: 22px; bottom: 100px; background: #ff3fa4; color: #fff; }
+  #brakeBtn { right: 116px; bottom: 30px; background: #e23d2e; color: #fff; }
+  #results .card { min-width: 340px; }
+  #again { background: #f2b21c; width: 100%; font-size: 18px; margin-top: 10px; }
+</style>
+<script type="importmap">
+  { "imports": { "three": "./vendor/three.module.js" } }
+</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div id="lobby" class="overlay">
+  <div class="card">
+    <h1 id="lobbyTitle"></h1>
+    <p id="inviteHint"></p>
+    <div class="inviteRow"><input id="invite" readonly><button id="copy"></button></div>
+    <div id="kartPick"></div>
+    <div id="players"></div>
+    <p id="lobbyStatus"></p>
+    <button id="ready"></button>
+  </div>
+</div>
+
+<div id="race">
+  <div id="lap" class="chip"></div>
+  <div id="pos" class="chip"></div>
+  <div id="speed" class="chip"></div>
+  <div id="wrongway"></div>
+</div>
+<canvas id="minimap" width="140" height="140"></canvas>
+<div id="countdown"></div>
+<div id="banner"></div>
+
+<div id="results" class="overlay">
+  <div class="card">
+    <h1 id="resultsTitle"></h1>
+    <div id="resultRows"></div>
+    <button id="again"></button>
+  </div>
+</div>
+
+<div id="touchUi">
+  <div id="steerZone"></div>
+  <button class="tbtn" id="driftBtn">drift</button>
+  <button class="tbtn" id="brakeBtn">brake</button>
+</div>
+
+<div id="toast"></div>
+<div id="controlsHint"></div>
+<div id="dev"></div>
+
+<script type="module" src="./client/main.js"></script>
+</body>
+</html>
