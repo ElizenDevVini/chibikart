@@ -1,0 +1,32 @@
+[
+  {
+    "created_at": "2026-08-06T21:23:16.043435Z",
+    "display_name": "Image to 3D",
+    "id": "b25af628-5017-4d97-b48f-a52da7313f84",
+    "job_type": "image_to_3d",
+    "min_result_url": null,
+    "params": {
+      "enable_animation": false,
+      "enable_pbr": false,
+      "enable_rigging": false,
+      "folder_id": null,
+      "medias": [
+        {
+          "data": {
+            "id": "71d095f5-5129-4463-b1a6-a6a84842623b",
+            "type": "media_input",
+            "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3F34QBfQ6Gz6BTjbIj2hWub7klS/71d095f5-5129-4463-b1a6-a6a84842623b.png"
+          },
+          "role": "image"
+        }
+      ],
+      "should_remesh": true,
+      "should_texture": true,
+      "target_polycount": 8000,
+      "texture_prompt": "flat cel-shaded cartoon, chibi proportions, bold dark outlines, yellow skin, bright primaries, suburban pastels, sunny",
+      "topology": "triangle"
+    },
+    "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3F34QBfQ6Gz6BTjbIj2hWub7klS/hf_20260806_212316_b25af628-5017-4d97-b48f-a52da7313f84.glb",
+    "status": "completed"
+  }
+]

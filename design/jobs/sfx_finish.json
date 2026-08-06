@@ -1,0 +1,22 @@
+[
+  {
+    "created_at": "2026-08-06T21:12:29.6885Z",
+    "display_name": "Seed Audio 1.0",
+    "id": "d7688020-e2cb-48c4-ae85-2c89a121039d",
+    "job_type": "seed_audio",
+    "min_result_url": null,
+    "params": {
+      "batch_size": 1,
+      "expression_intensity": 5,
+      "format": "mp3",
+      "loudness_rate": 0,
+      "mood": 0,
+      "pitch_rate": 0,
+      "prompt": "short cheerful cartoon victory fanfare, bright brass and glockenspiel, two seconds, no vocals, no ambience",
+      "sample_rate": 44100,
+      "speech_rate": 0
+    },
+    "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3F34QBfQ6Gz6BTjbIj2hWub7klS/hf_20260806_211229_d7688020-e2cb-48c4-ae85-2c89a121039d.mp3",
+    "status": "completed"
+  }
+]

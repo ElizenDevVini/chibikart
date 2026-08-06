@@ -1,0 +1,15 @@
+[
+  {
+    "created_at": "2026-08-06T21:12:42.721232Z",
+    "display_name": "Sonilo Music",
+    "id": "19a9919b-d42b-4012-a6d1-3e6a56b453e5",
+    "job_type": "sonilo_music",
+    "min_result_url": null,
+    "params": {
+      "duration": 60,
+      "prompt": "upbeat cartoon surf-rock instrumental loop for a sunny go-kart racing game, twangy electric guitar, bouncy drums, hand claps, playful and driving, seamless loop, instrumental, no vocals"
+    },
+    "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3F34QBfQ6Gz6BTjbIj2hWub7klS/hf_20260806_211242_19a9919b-d42b-4012-a6d1-3e6a56b453e5.m4a",
+    "status": "completed"
+  }
+]

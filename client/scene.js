@@ -116,6 +116,9 @@ function placeholderKart(colorHex) {
   return grp;
 }
 
+// generated meshes face arbitrary directions; measured per model (front must point +z)
+const KART_YAW_FIX = { red: 0, blue: -Math.PI / 2, green: 0, yellow: Math.PI / 2 };
+
 async function loadKartModel(id) {
   const loader = new GLTFLoader();
   try {
@@ -130,12 +133,13 @@ async function loadKartModel(id) {
         });
       }
     });
-    const box = new THREE.Box3().setFromObject(model);
-    const s = 2.4 / (box.max.z - box.min.z || 1); // normalize length to kart size
-    model.scale.setScalar(s);
-    model.position.y -= box.min.y * s;
+    model.rotation.y = KART_YAW_FIX[id] ?? 0;
     const wrap = new THREE.Group();
     wrap.add(model);
+    const box = new THREE.Box3().setFromObject(wrap); // after rotation: length is along z
+    const s = 2.4 / (box.max.z - box.min.z || 1);
+    model.scale.setScalar(s);
+    model.position.y = -box.min.y * s;
     return wrap;
   } catch {
     console.warn(`kart model missing, using placeholder: kart_${id}.glb`);
@@ -338,6 +342,8 @@ async function scatterProps(scene, rand) {
     },
   };
 
+  const PROP_HEIGHT = { prop_tree: 6, prop_house: 5.5, prop_donut: 8 };
+
   async function make(id) {
     try {
       const gltf = await loader.loadAsync(`./assets/${id}.glb`);
@@ -345,7 +351,13 @@ async function scatterProps(scene, rand) {
       m.traverse((n) => {
         if (n.isMesh) n.material = new THREE.MeshToonMaterial({ color: n.material.color ?? 0xffffff, map: n.material.map ?? null, gradientMap: GRAD });
       });
-      return m;
+      const box = new THREE.Box3().setFromObject(m);
+      const s = (PROP_HEIGHT[id] ?? 5) / (box.max.y - box.min.y || 1);
+      m.scale.setScalar(s);
+      m.position.y = -box.min.y * s;
+      const wrap = new THREE.Group();
+      wrap.add(m);
+      return wrap;
     } catch {
       return placeholders[id]();
     }

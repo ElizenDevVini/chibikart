@@ -1,0 +1,23 @@
+[
+  {
+    "created_at": "2026-08-06T21:17:17.654172Z",
+    "display_name": "Nano Banana Pro",
+    "id": "40f6204e-90e8-437c-8f54-2bde79ba4848",
+    "job_type": "nano_banana_pro",
+    "min_result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3F34QBfQ6Gz6BTjbIj2hWub7klS/hf_20260806_211717_40f6204e-90e8-437c-8f54-2bde79ba4848_min.webp",
+    "params": {
+      "application": null,
+      "aspect_ratio": "1:1",
+      "batch_size": 1,
+      "height": 1024,
+      "input_image": null,
+      "input_images": [],
+      "prompt": "seamless tileable game texture tile of plain cartoon lawn grass surface material seen flat from directly above, empty grass only with subtle blade tufts, absolutely no people, no characters, no buildings, no paths, no signs, no icons, no scene, uniform pattern density, flat cel-shaded cartoon in the style of a classic American prime-time animated sitcom, chibi proportions with oversized heads and stubby bodies, bold clean dark outlines, rounded simple shapes, characters in warm yellow skin tones with bright saturated primary-color outfits, environment in cheerful suburban pastels with green lawns and cream sidewalks, hazards and boost elements marked in hot pink glow, sunny daytime ambient light, high contrast between game elements and backgrounds, clean readable silhouettes, three-quarter isometric view, perfectly seamless edges that wrap horizontally and vertically, no border, no vignette, flat even lighting, no single focal object",
+      "resolution": "1k",
+      "surface": null,
+      "width": 1024
+    },
+    "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3F34QBfQ6Gz6BTjbIj2hWub7klS/hf_20260806_211717_40f6204e-90e8-437c-8f54-2bde79ba4848.png",
+    "status": "completed"
+  }
+]

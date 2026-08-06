@@ -1,6 +1,6 @@
 // Audio with graceful degradation: missing generated assets log once and stay silent.
 const files = {
-  music: "./assets/music_loop.mp3",
+  music: "./assets/music_loop.m4a",
   engine: "./assets/sfx_engine.mp3",
   drift: "./assets/sfx_drift.mp3",
   boost: "./assets/sfx_boost.mp3",
@@ -20,6 +20,7 @@ for (const [k, url] of Object.entries(files)) {
 }
 if (clips.music) { clips.music.loop = true; clips.music.volume = 0.35; }
 if (clips.engine) { clips.engine.loop = true; clips.engine.volume = 0.25; }
+for (const k of ["drift", "boost", "countdown", "finish"]) if (clips[k]) clips[k].volume = 0.8;
 
 // browsers require a user gesture before playback
 function unlock() {
