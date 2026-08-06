@@ -1,5 +1,5 @@
 import { STR } from "./strings.js";
-import { curve, LAPS } from "./track.js";
+import { defaultTrack, LAPS } from "./track.js";
 import { KART_IDS } from "./scene.js";
 
 const $ = (id) => document.getElementById(id);
@@ -12,6 +12,7 @@ export function createHud(inviteUrl = location.href) {
     wrongway: $("wrongway"), results: $("results"), resultRows: $("resultRows"), again: $("again"),
     toast: $("toast"), banner: $("banner"), minimap: $("minimap"), dev: $("dev"),
     touchUi: $("touchUi"), controlsHint: $("controlsHint"),
+    itemSlot: $("itemSlot"), itemIcon: $("itemIcon"), pauseBtn: $("pauseBtn"),
   };
 
   els.invite.value = inviteUrl;
@@ -28,30 +29,40 @@ export function createHud(inviteUrl = location.href) {
     setTimeout(() => (els.copyBtn.textContent = STR.copy), 1200);
   };
 
-  // minimap: static centerline drawn once, kart dots per frame
+  // minimap: static centerline redrawn per track, kart dots per frame
   const mm = els.minimap.getContext("2d");
   const MM = 140;
   const mmStatic = document.createElement("canvas");
   mmStatic.width = mmStatic.height = MM;
-  {
+  let mmScale = 300;
+
+  function drawStatic(track) {
     const g = mmStatic.getContext("2d");
+    g.clearRect(0, 0, MM, MM);
     g.strokeStyle = "rgba(255,255,255,0.9)";
     g.lineWidth = 5;
     g.lineCap = "round";
     g.beginPath();
     for (let i = 0; i <= 128; i++) {
-      const p = curve.getPointAt(i / 128);
-      const x = MM / 2 + (p.x / 300) * MM, y = MM / 2 + (p.z / 300) * MM;
+      const p = track.curve.getPointAt(i / 128);
+      const x = MM / 2 + (p.x / mmScale) * MM, y = MM / 2 + (p.z / mmScale) * MM;
       i ? g.lineTo(x, y) : g.moveTo(x, y);
     }
     g.stroke();
   }
-  const mmXY = (x, z) => [MM / 2 + (x / 300) * MM, MM / 2 + (z / 300) * MM];
+  drawStatic(defaultTrack);
+
+  const mmXY = (x, z) => [MM / 2 + (x / mmScale) * MM, MM / 2 + (z / mmScale) * MM];
 
   let toastTimer = 0;
+  const ICONS = { donut: "./assets/icon_donut.png", shake: "./assets/icon_shake.png", turbo: "./assets/icon_turbo.png" };
+  let rouletteTimer = null;
 
   return {
     els,
+
+    setTrack(track) { drawStatic(track); },
+
     show(phase) {
       els.lobby.style.display = phase === "lobby" ? "flex" : "none";
       const inRace = phase === "racing" || phase === "countdown";
@@ -59,15 +70,21 @@ export function createHud(inviteUrl = location.href) {
       els.minimap.style.display = inRace ? "block" : "none";
       els.results.style.display = phase === "finished" ? "flex" : "none";
       if (phase !== "countdown") els.countdown.style.display = "none";
+      if (!inRace) { els.itemSlot.style.display = "none"; els.pauseBtn.style.display = "none"; }
+      els.controlsHint.style.display = inRace || phase === "lobby" ? "block" : "none";
+    },
+
+    showRaceExtras(itemsOn, pauseOn) {
+      els.itemSlot.style.display = itemsOn ? "flex" : "none";
+      els.pauseBtn.style.display = pauseOn ? "block" : "none";
     },
 
     lobbyState(seats, mySeat, myReady) {
       els.players.innerHTML = "";
-      let seated = 0, ready = 0;
+      let seated = 0;
       for (const s of seats) {
         if (!s) continue;
         seated++;
-        if (s.ready) ready++;
         const row = document.createElement("div");
         row.className = "prow" + (s.seat === mySeat ? " me" : "");
         row.innerHTML = `<span class="dot ${s.kartId}"></span><span>${s.name}${s.seat === mySeat ? " (" + STR.youAre + " " + STR.kartNames[s.kartId] + ")" : ""}</span><span class="rdy">${s.ready ? STR.ready : STR.unready}</span>`;
@@ -95,7 +112,7 @@ export function createHud(inviteUrl = location.href) {
       els.countdown.style.display = "block";
       els.countdown.textContent = n === 0 ? STR.go : n;
       els.countdown.classList.remove("pop");
-      void els.countdown.offsetWidth; // restart animation
+      void els.countdown.offsetWidth;
       els.countdown.classList.add("pop");
       if (n === 0) setTimeout(() => (els.countdown.style.display = "none"), 900);
     },
@@ -106,6 +123,39 @@ export function createHud(inviteUrl = location.href) {
       els.speed.textContent = `${Math.round(speed * 3.4)}`;
       els.wrongway.style.display = wrongWay ? "block" : "none";
       if (wrongWay) els.wrongway.textContent = STR.wrongWay;
+    },
+
+    placeFlash() {
+      els.pos.classList.remove("flash");
+      void els.pos.offsetWidth;
+      els.pos.classList.add("flash");
+    },
+
+    itemSlot(slot) {
+      if (slot.rolling) {
+        if (!rouletteTimer) {
+          const keys = Object.keys(ICONS);
+          let i = 0;
+          rouletteTimer = setInterval(() => {
+            els.itemIcon.src = ICONS[keys[i++ % keys.length]];
+          }, 60);
+        }
+        els.itemIcon.style.display = "block";
+        return;
+      }
+      if (rouletteTimer) { clearInterval(rouletteTimer); rouletteTimer = null; }
+      if (slot.held) {
+        els.itemIcon.src = ICONS[slot.held];
+        els.itemIcon.style.display = "block";
+      } else {
+        els.itemIcon.style.display = "none";
+      }
+    },
+
+    finalLap() {
+      els.banner.textContent = STR.finalLap;
+      els.banner.style.display = "block";
+      setTimeout(() => (els.banner.style.display = "none"), 2200);
     },
 
     minimap(karts, mySeat) {

@@ -1,0 +1,22 @@
+[
+  {
+    "created_at": "2026-08-06T22:13:04.158311Z",
+    "display_name": "Seed Audio 1.0",
+    "id": "27aa3b13-9900-4ea8-a623-5a1d85159519",
+    "job_type": "seed_audio",
+    "min_result_url": null,
+    "params": {
+      "batch_size": 1,
+      "expression_intensity": 5,
+      "format": "mp3",
+      "loudness_rate": 0,
+      "mood": 0,
+      "pitch_rate": 0,
+      "prompt": "short urgent race final lap jingle, four fast rising bell notes, isolated, no music, no voice",
+      "sample_rate": 44100,
+      "speech_rate": 0
+    },
+    "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3F34QBfQ6Gz6BTjbIj2hWub7klS/hf_20260806_221304_27aa3b13-9900-4ea8-a623-5a1d85159519.mp3",
+    "status": "completed"
+  }
+]

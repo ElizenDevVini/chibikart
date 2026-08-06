@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { closest, isOnRoad, onBoostPad, gridSlot, sample, CHECKPOINTS } from "./track.js";
+import { defaultTrack, CHECKPOINTS } from "./track.js";
 
 export const CFG = {
   MAX_SPEED: 28,
@@ -17,25 +17,40 @@ export const CFG = {
   DRIFT_TIER1: 0.9, DRIFT_TIER2: 1.8,   // seconds of charge
   BOOST_T1: 0.4, BOOST_T2: 0.9,          // seconds of boost granted
   PAD_BOOST: 0.8,
+  SPIN_TIME: 1.1,
   KART_RADIUS: 0.9,
-  WORLD_RADIUS: 130,
+  WORLD_RADIUS: 145,
 };
 
-export function makeKartState(seat) {
-  const g = gridSlot(seat);
+export function makeKartState(seat, track = defaultTrack) {
+  const g = track.gridSlot(seat);
   return {
     x: g.x, z: g.z, yaw: g.yaw,
     speed: 0,
     drifting: false, driftDir: 0, driftCharge: 0,
     boostTime: 0, padCooldown: 0,
     offroad: false,
-    trackT: closest(new THREE.Vector3(g.x, 0, g.z)).t,
+    track,
+    trackT: track.closest(new THREE.Vector3(g.x, 0, g.z)).t,
     lateral: 0,
     nextCp: 1, lap: 1, done: false,
     wrongWayTime: 0,
+    spinTime: 0,
+    tune: { speedMul: 1, accelMul: 1 }, // AI rubber-band hook; player stays {1,1}
     // events for scene/audio/net, cleared each step by consumers
-    justBoosted: 0, justCrossedCp: -1,
+    justBoosted: 0, justCrossedCp: -1, justSpun: 0,
   };
+}
+
+// Spin-out from item hits: control cut, heading untouched (visual spin only).
+export function applySpin(s) {
+  if (s.spinTime > 0) return;
+  s.spinTime = CFG.SPIN_TIME;
+  s.speed *= 0.35;
+  s.drifting = false;
+  s.driftCharge = 0;
+  s.boostTime = 0;
+  s.justSpun = 1;
 }
 
 const _pos = new THREE.Vector3();
@@ -44,10 +59,15 @@ const _pos = new THREE.Vector3();
 export function step(s, cmd, dt, remoteKarts) {
   s.justBoosted = 0;
   s.justCrossedCp = -1;
+  if (s.justSpun && s.spinTime < CFG.SPIN_TIME) s.justSpun = 0;
   if (s.done) cmd = { throttle: 0.35, steer: 0, drift: false }; // finished: auto-cruise
+  if (s.spinTime > 0) {
+    s.spinTime -= dt;
+    cmd = { throttle: 0, steer: 0, drift: false };
+  }
 
   // --- longitudinal ---
-  if (cmd.throttle > 0) s.speed += CFG.ACCEL * cmd.throttle * dt;
+  if (cmd.throttle > 0) s.speed += CFG.ACCEL * s.tune.accelMul * cmd.throttle * dt;
   else if (cmd.throttle < 0) s.speed += CFG.BRAKE * cmd.throttle * dt;
   s.speed -= s.speed * CFG.DRAG * dt * (s.offroad ? 2.2 : 1);
 
@@ -56,7 +76,9 @@ export function step(s, cmd, dt, remoteKarts) {
     s.boostTime -= dt;
     s.speed += (CFG.BOOST_SPEED - s.speed) * 4 * dt;
   }
-  const cap = boosting ? CFG.BOOST_SPEED : CFG.MAX_SPEED * (s.offroad ? CFG.OFFROAD_FACTOR : 1);
+  const cap = boosting
+    ? CFG.BOOST_SPEED
+    : CFG.MAX_SPEED * s.tune.speedMul * (s.offroad ? CFG.OFFROAD_FACTOR : 1);
   s.speed = Math.max(-CFG.REVERSE_MAX, Math.min(cap, s.speed));
 
   // --- steering & drift ---
@@ -86,7 +108,7 @@ export function step(s, cmd, dt, remoteKarts) {
   const r = Math.hypot(s.x, s.z);
   if (r > CFG.WORLD_RADIUS) { s.x *= CFG.WORLD_RADIUS / r; s.z *= CFG.WORLD_RADIUS / r; s.speed *= 0.9; }
 
-  // --- soft kart-kart separation (own kart only, remote poses are ghosts) ---
+  // --- soft kart-kart separation (other karts are ghosts or peers, only self moves) ---
   if (remoteKarts) {
     for (const rk of remoteKarts) {
       const dx = s.x - rk.x, dz = s.z - rk.z;
@@ -102,13 +124,13 @@ export function step(s, cmd, dt, remoteKarts) {
 
   // --- track queries ---
   const prevT = s.trackT;
-  const q = closest(_pos.set(s.x, 0, s.z));
+  const q = s.track.closest(_pos.set(s.x, 0, s.z));
   s.trackT = q.t;
   s.lateral = q.lateral;
-  s.offroad = !isOnRoad(q.lateral);
+  s.offroad = !s.track.isOnRoad(q.lateral);
 
   if (s.padCooldown > 0) s.padCooldown -= dt;
-  if (onBoostPad(q.t, q.lateral) && s.padCooldown <= 0) {
+  if (s.track.onBoostPad(q.t, q.lateral) && s.padCooldown <= 0) {
     s.boostTime = Math.max(s.boostTime, CFG.PAD_BOOST);
     s.padCooldown = 1.5;
     s.justBoosted = 3;
@@ -123,7 +145,7 @@ export function step(s, cmd, dt, remoteKarts) {
   }
 
   // --- wrong-way detection (HUD only) ---
-  const { tan } = sample(s.trackT);
+  const { tan } = s.track.sample(s.trackT);
   const fwd = Math.sin(dir) * tan.x + Math.cos(dir) * tan.z;
   if (fwd < 0 && s.speed > 5) s.wrongWayTime += dt;
   else s.wrongWayTime = 0;

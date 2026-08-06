@@ -5,6 +5,7 @@ const BIND = {
   KeyA: "left", ArrowLeft: "left",
   KeyD: "right", ArrowRight: "right",
   Space: "drift", ShiftLeft: "drift", ShiftRight: "drift",
+  KeyE: "item", Enter: "item",
 };
 const held = new Set();
 
@@ -20,7 +21,7 @@ addEventListener("blur", () => held.clear());
 
 // Touch: left half = horizontal steering strip, right half = brake + drift buttons.
 // Throttle is auto-held on touch devices (gas pedal is implicit).
-export const touchState = { active: false, steer: 0, brake: false, drift: false };
+export const touchState = { active: false, steer: 0, brake: false, drift: false, item: false };
 let steerTouchId = null;
 
 function bindTouchButtons(brakeEl, driftEl) {
@@ -57,9 +58,13 @@ function bindSteerZone(zoneEl) {
   zoneEl.addEventListener("touchcancel", end);
 }
 
-export function initTouch(steerZone, brakeBtn, driftBtn) {
+export function initTouch(steerZone, brakeBtn, driftBtn, itemEl) {
   bindSteerZone(steerZone);
   bindTouchButtons(brakeBtn, driftBtn);
+  if (itemEl) {
+    itemEl.addEventListener("touchstart", (e) => { touchState.item = true; touchState.active = true; e.preventDefault(); }, { passive: false });
+    itemEl.addEventListener("touchend", () => { touchState.item = false; });
+  }
 }
 
 function gamepad() {
@@ -70,7 +75,8 @@ function gamepad() {
     const gas = gp.buttons[7]?.value || (gp.buttons[12]?.pressed ? 1 : 0);
     const brake = gp.buttons[6]?.value || (gp.buttons[13]?.pressed ? 1 : 0);
     const drift = gp.buttons[0]?.pressed || false;
-    if (stick || dpad || gas || brake || drift) return { steer: stick || dpad, gas, brake, drift };
+    const item = gp.buttons[1]?.pressed || false;
+    if (stick || dpad || gas || brake || drift || item) return { steer: stick || dpad, gas, brake, drift, item };
   }
   return null;
 }
@@ -78,18 +84,20 @@ function gamepad() {
 export function commands() {
   const gp = gamepad();
   if (gp) {
-    return { throttle: gp.gas - gp.brake, steer: gp.steer, drift: gp.drift };
+    return { throttle: gp.gas - gp.brake, steer: gp.steer, drift: gp.drift, item: gp.item };
   }
   if (touchState.active) {
     return {
       throttle: touchState.brake ? -1 : 1,
       steer: touchState.steer,
       drift: touchState.drift,
+      item: touchState.item,
     };
   }
   return {
     throttle: (held.has("up") ? 1 : 0) - (held.has("down") ? 1 : 0),
     steer: (held.has("right") ? 1 : 0) - (held.has("left") ? 1 : 0),
     drift: held.has("drift"),
+    item: held.has("item"),
   };
 }

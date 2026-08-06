@@ -50,6 +50,20 @@
   #brakeBtn { right: 116px; bottom: 30px; background: #e23d2e; color: #fff; }
   #results .card { min-width: 340px; }
   #again { background: #f2b21c; width: 100%; font-size: 18px; margin-top: 10px; }
+  #menuRoot { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; flex-direction: column; z-index: 12; }
+  .titleWrap { text-align: center; }
+  .logo { font-size: 84px; margin: 0; color: #fffdf5; -webkit-text-stroke: 4px #2a2a2e; text-shadow: 0 6px 0 #2a2a2e; }
+  .tagline { color: #fffdf5; text-shadow: 0 2px 0 rgba(42,42,46,0.6); font-size: 16px; margin: 6px 0 22px; }
+  .menuBtns { display: flex; flex-direction: column; gap: 10px; min-width: 240px; }
+  .menuBtns button { font-size: 17px; }
+  .menuBtns button.big { background: #f2b21c; font-size: 20px; }
+  #menuRoot .card h1 { margin-bottom: 12px; }
+  .kartGrid { display: flex; gap: 14px; justify-content: center; }
+  .flash { animation: flashPop 0.5s ease-out; }
+  @keyframes flashPop { 0% { transform: translateX(-50%) scale(1.5); } 100% { transform: translateX(-50%) scale(1); } }
+  #itemSlot { position: fixed; top: 14px; right: 168px; width: 62px; height: 62px; background: #fffdf5; border: 3px solid #2a2a2e; border-radius: 14px; box-shadow: 0 3px 0 #2a2a2e; display: none; align-items: center; justify-content: center; z-index: 5; }
+  #itemIcon { width: 50px; height: 50px; display: none; }
+  #pauseBtn { position: fixed; bottom: 14px; left: 14px; z-index: 8; display: none; font-size: 14px; padding: 8px 14px; }
 </style>
 <script type="importmap">
   { "imports": { "three": "./vendor/three.module.js" } }
@@ -77,8 +91,11 @@
   <div id="wrongway"></div>
 </div>
 <canvas id="minimap" width="140" height="140"></canvas>
+<div id="itemSlot"><img id="itemIcon" alt=""></div>
+<button id="pauseBtn">menu</button>
 <div id="countdown"></div>
 <div id="banner"></div>
+<div id="menuRoot"></div>
 
 <div id="results" class="overlay">
   <div class="card">

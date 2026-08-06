@@ -1,0 +1,23 @@
+[
+  {
+    "created_at": "2026-08-06T22:10:55.226633Z",
+    "display_name": "Nano Banana Pro",
+    "id": "b4fece90-5789-411e-a1bf-4f3fc1c9da8d",
+    "job_type": "nano_banana_pro",
+    "min_result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3F34QBfQ6Gz6BTjbIj2hWub7klS/hf_20260806_221055_b4fece90-5789-411e-a1bf-4f3fc1c9da8d_min.webp",
+    "params": {
+      "application": null,
+      "aspect_ratio": "1:1",
+      "batch_size": 1,
+      "height": 1024,
+      "input_image": null,
+      "input_images": [],
+      "prompt": "concept art of a rounded blue metal turbo canister with a yellow lightning bolt painted on the side, canister only, no text, single object, full body visible, centered, smooth rounded blobby geometry, flat cel-shaded cartoon in the style of a classic American prime-time animated sitcom, chibi proportions with oversized heads and stubby bodies, bold clean dark outlines, rounded simple shapes, characters in warm yellow skin tones with bright saturated primary-color outfits, environment in cheerful suburban pastels with green lawns and cream sidewalks, hazards and boost elements marked in hot pink glow, sunny daytime ambient light, high contrast between game elements and backgrounds, clean readable silhouettes, three-quarter isometric view, on a pure flat white background, no shadow, no ground plane, nothing cropped at the edges",
+      "resolution": "1k",
+      "surface": null,
+      "width": 1024
+    },
+    "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3F34QBfQ6Gz6BTjbIj2hWub7klS/hf_20260806_221055_b4fece90-5789-411e-a1bf-4f3fc1c9da8d.png",
+    "status": "completed"
+  }
+]
