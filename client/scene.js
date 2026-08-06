@@ -117,7 +117,7 @@ function placeholderKart(colorHex) {
 }
 
 // generated meshes face arbitrary directions; measured per model (front must point +z)
-const KART_YAW_FIX = { red: 0, blue: -Math.PI / 2, green: 0, yellow: Math.PI / 2 };
+const KART_YAW_FIX = { red: 0, blue: Math.PI / 2, green: 0, yellow: 0 };
 
 async function loadKartModel(id) {
   const loader = new GLTFLoader();
@@ -166,7 +166,9 @@ export async function createScene(canvas, seededRandom) {
     loadTextureOrFallback("./assets/tex_grass.png", grassDraw),
     loadTextureOrFallback("./assets/tex_dirt.png", dirtDraw),
   ]);
-  grassTex.repeat.set(60, 60);
+  grassTex.repeat.set(40, 40);
+  const maxAniso = renderer.capabilities.getMaxAnisotropy();
+  for (const t of [roadTex, grassTex, dirtTex]) t.anisotropy = Math.min(4, maxAniso);
 
   const geos = buildRoadGeometry();
   scene.add(new THREE.Mesh(geos.road, toon(0xffffff, { map: roadTex })));
@@ -342,7 +344,7 @@ async function scatterProps(scene, rand) {
     },
   };
 
-  const PROP_HEIGHT = { prop_tree: 6, prop_house: 5.5, prop_donut: 8 };
+  const PROP_HEIGHT = { prop_tree: 7, prop_house: 7, prop_donut: 9 };
 
   async function make(id) {
     try {
@@ -370,12 +372,14 @@ async function scatterProps(scene, rand) {
   };
 
   // one landmark donut sign near the start, trees/houses scattered off-road
+  const placed = [];
   const donut = templates.prop_donut.clone();
   const s0 = sample(0.03);
   donut.position.set(s0.pos.x * 1.35, 0, s0.pos.z * 1.35);
   scene.add(donut);
+  placed.push(donut.position);
 
-  for (let i = 0; i < 26; i++) {
+  for (let i = 0; i < 48; i++) {
     const t = rand();
     const { pos, tan } = sample(t);
     const side = new THREE.Vector3().crossVectors(tan, new THREE.Vector3(0, 1, 0));
@@ -387,8 +391,10 @@ async function scatterProps(scene, rand) {
     if (Math.hypot(p.position.x, p.position.z) > 145) continue;
     // the circuit folds back on itself; make sure the spot is clear of every road section
     if (Math.abs(closest(p.position).lateral) < ROAD_HALF_WIDTH + 4) continue;
+    if (placed.some((q) => q.distanceTo(p.position) < 9)) continue;
     p.rotation.y = rand() * Math.PI * 2;
     p.scale.setScalar(0.8 + rand() * 0.5);
     scene.add(p);
+    placed.push(p.position);
   }
 }

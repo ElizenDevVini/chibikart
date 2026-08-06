@@ -97,7 +97,7 @@ export function buildRoadGeometry(halfW = ROAD_HALF_WIDTH, segments = 384) {
       const side = new THREE.Vector3().crossVectors(tan, new THREE.Vector3(0, 1, 0));
       pos.push(c.x + side.x * inner, yOff, c.z + side.z * inner);
       pos.push(c.x + side.x * outer, yOff, c.z + side.z * outer);
-      const v = arc / 8;
+      const v = arc / 10; // one texture tile per road-width for square, chunky cartoon detail
       uv.push(0, v, 1, v);
       if (i < segments) {
         const a = i * 2;

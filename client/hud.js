@@ -54,7 +54,9 @@ export function createHud(inviteUrl = location.href) {
     els,
     show(phase) {
       els.lobby.style.display = phase === "lobby" ? "flex" : "none";
-      els.race.style.display = phase === "racing" || phase === "countdown" ? "block" : "none";
+      const inRace = phase === "racing" || phase === "countdown";
+      els.race.style.display = inRace ? "block" : "none";
+      els.minimap.style.display = inRace ? "block" : "none";
       els.results.style.display = phase === "finished" ? "flex" : "none";
       if (phase !== "countdown") els.countdown.style.display = "none";
     },

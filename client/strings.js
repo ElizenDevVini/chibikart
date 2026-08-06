@@ -11,6 +11,7 @@ export const STR = {
   waitingForPlayers: "waiting for at least 2 players...",
   waitingForReady: "waiting for everyone to ready up...",
   spectating: "race in progress, you are watching",
+  practice: "practice mode. open the shared game link to race online",
   raceLost: "the room restarted, ready up to race again",
   go: "GO",
   lap: "lap",

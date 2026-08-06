@@ -51,4 +51,10 @@ export const audio = {
     const c = clips.engine;
     if (c) c.playbackRate = 0.7 + speedFrac * 0.9;
   },
+  // loops can't start before the first user gesture; retry once racing
+  ensureLoops(racing) {
+    if (!racing || !unlocked) return;
+    this.startLoop("music");
+    this.startLoop("engine");
+  },
 };

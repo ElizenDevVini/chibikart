@@ -69,9 +69,33 @@ hud.banner(STR.connecting);
 hud.show("lobby");
 hud.els.lobby.style.display = "none";
 
+// solo practice when no room server is reachable (always the case on localhost)
+let practice = false;
+let everConnected = false;
+let failedConnects = 0;
+
+function enterPractice() {
+  if (practice || everConnected) return;
+  practice = true;
+  net.close();
+  phase = "racing";
+  mySeat = 0;
+  seats = KART_IDS.map((id, i) => ({ seat: i, name: id, kartId: id, ready: true, connected: i === 0, lap: 1, nextCp: 1, finishedAt: null }));
+  syncKartModels();
+  kart = makeKartState(0);
+  hud.show("racing");
+  hud.banner(STR.practice);
+  setTimeout(() => hud.banner(""), 3000);
+}
+
 const net = createNet(room, playerId, myName, {
-  onOpen: () => hud.banner(""),
-  onDisconnect: () => hud.banner(STR.reconnecting),
+  onOpen: () => { everConnected = true; hud.banner(""); },
+  onDisconnect: () => {
+    if (practice) return;
+    failedConnects++;
+    if (!everConnected && (failedConnects >= 3 || /^(localhost|127\.)/.test(location.hostname))) enterPractice();
+    else hud.banner(STR.reconnecting);
+  },
   onMessage: handleMessage,
 });
 
@@ -179,8 +203,11 @@ function simStep(dt) {
   const remotes = net.remotePoses(INTERP_DELAY, mySeat) ?? [];
   step(kart, cmd, dt, remotes);
 
-  if (kart.justCrossedCp >= 0) net.send({ type: "checkpoint", idx: kart.justCrossedCp });
-  if (kart.justCrossedCp === 0 && kart.lap < LAPS + 1) kart.lap++; // optimistic; server confirms via cp
+  if (kart.justCrossedCp >= 0 && !practice) net.send({ type: "checkpoint", idx: kart.justCrossedCp });
+  if (kart.justCrossedCp === 0) {
+    if (practice && kart.lap >= LAPS) kart.lap = 1; // practice loops forever
+    else if (kart.lap < LAPS + 1) kart.lap++; // optimistic; server confirms via cp
+  }
   if (kart.justCrossedCp >= 0) kart.nextCp = (kart.justCrossedCp + 1) % CHECKPOINTS;
 
   if (kart.drifting && stepCount % 3 === 0) {
@@ -195,7 +222,8 @@ function simStep(dt) {
   audio.enginePitch(Math.abs(kart.speed) / CFG.BOOST_SPEED);
 
   stepCount++;
-  if (stepCount % POSE_EVERY === 0 && phase === "racing") {
+  audio.ensureLoops(phase === "racing");
+  if (stepCount % POSE_EVERY === 0 && phase === "racing" && !practice) {
     net.send({
       type: "pose",
       p: [Math.round(kart.x * 100) / 100, 0, Math.round(kart.z * 100) / 100],
