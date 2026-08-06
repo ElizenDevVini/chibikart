@@ -20,6 +20,12 @@ if (!room) {
   u.searchParams.set("room", room);
   history.replaceState(null, "", u);
 }
+// the platform wrapper iframes this page with ?__raw=1; invite links should not carry it
+const inviteUrl = (() => {
+  const u = new URL(location.href);
+  u.searchParams.delete("__raw");
+  return u.href;
+})();
 let playerId = sessionStorage.getItem("ck_pid");
 if (!playerId) { playerId = crypto.randomUUID(); sessionStorage.setItem("ck_pid", playerId); }
 const myName = "racer-" + playerId.slice(0, 4);
@@ -35,7 +41,7 @@ function mulberry32(seed) {
 }
 const roomSeed = [...room].reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 7);
 
-const hud = createHud();
+const hud = createHud(inviteUrl);
 const canvas = document.getElementById("c");
 const scene = await createScene(canvas, mulberry32(roomSeed));
 

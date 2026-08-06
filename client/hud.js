@@ -4,7 +4,7 @@ import { KART_IDS } from "./scene.js";
 
 const $ = (id) => document.getElementById(id);
 
-export function createHud() {
+export function createHud(inviteUrl = location.href) {
   const els = {
     lobby: $("lobby"), players: $("players"), invite: $("invite"), copyBtn: $("copy"),
     readyBtn: $("ready"), lobbyStatus: $("lobbyStatus"), kartPick: $("kartPick"),
@@ -14,7 +14,7 @@ export function createHud() {
     touchUi: $("touchUi"), controlsHint: $("controlsHint"),
   };
 
-  els.invite.value = location.href;
+  els.invite.value = inviteUrl;
   els.copyBtn.textContent = STR.copy;
   els.readyBtn.textContent = STR.ready;
   els.again.textContent = STR.playAgain;
@@ -23,7 +23,7 @@ export function createHud() {
   $("inviteHint").textContent = STR.inviteHint;
 
   els.copyBtn.onclick = async () => {
-    try { await navigator.clipboard.writeText(location.href); } catch { els.invite.select(); document.execCommand("copy"); }
+    try { await navigator.clipboard.writeText(inviteUrl); } catch { els.invite.select(); document.execCommand("copy"); }
     els.copyBtn.textContent = STR.copied;
     setTimeout(() => (els.copyBtn.textContent = STR.copy), 1200);
   };
